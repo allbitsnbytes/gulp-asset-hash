@@ -1,0 +1,6 @@
+# Node and NPM
+node_modules
+
+
+# VIM
+*.swp
