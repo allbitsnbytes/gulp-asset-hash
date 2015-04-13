@@ -1,0 +1,21 @@
+{
+  "name": "gulp_asset_hash",
+  "version": "0.1.0",
+  "description": "Gulp plugin to hash assets and generate asset manifest",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "asset",
+    "hash",
+    "optimizer",
+    "rev",
+    "revving"
+  ],
+  "author": "Maxwell Berkel <maxwell@allbitsnbytes.com> (http://allbitsnbytes.com/)",
+  "license": "MIT"
+}
