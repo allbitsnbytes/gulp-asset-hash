@@ -17,5 +17,11 @@
     "revving"
   ],
   "author": "Maxwell Berkel <maxwell@allbitsnbytes.com> (http://allbitsnbytes.com/)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "gutil": "~1.6.4",
+    "glob": "~5.0.5",
+    "lodash": "~3.6.0",
+    "chai": "~2.2.0"
+  }
 }
