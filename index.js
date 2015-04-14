@@ -95,9 +95,17 @@ var util		= require('gulp-util');
  				return;
  			}
 
+ 			file.assetHashed = false;
+
  			// Hash file
  			try {
  				var result = hasher.hashFiles(file.path, options);
+
+ 				if (result.hashed) {
+ 					file.oldPath = result.oldFile;
+ 					file.path = result.newFile;
+ 					file.assetHashed = true
+ 				}
  			}
  			catch(e) {
  				cb(util.PluginError('gulp-asset-hash', e));
@@ -118,7 +126,12 @@ var util		= require('gulp-util');
  	 * @return {object} Returns stream (through object)
  	 */
  	var saveManifest = function(options) {
+ 		options = _.isObject(options) ? options : {};
 
+ 		return through.obj(function(file, enc, cb) {
+
+
+ 		});
  	};
 
 
