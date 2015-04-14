@@ -8,56 +8,43 @@ var fs			= require('fs');
 var glob		= require('glob');
 var hasher		= require('../');
 var path		= require('path');
+var util		= require('gulp-util');
 
 
 // Test variables
 
 var tmpDir		= './tmp/';
+var testFiles	= [];
 
 
 // Utility Functions
 
 /**
- * Clean up  test environment
- * @param {string} path The path to directory to remove
+ * Create fresh copies of all test files and initialize the testFiles array with file objects
  */
-function removeTestDir(path) {
-	var files = [];
+function initTestFiles() {
+	var files	= [
+		path.join(tmpDir, 'css/style.css'),
+		path.join(tmpDir, 'css/bootstrap.min.css'),
+		path.join(tmpDir, 'js/main.js'),
+		path.join(tmpDir, 'js/shoestring.min.js'),
+		path.join(tmpDir, 'img/logo.png'),
+		path.join(tmpDir, 'img/profile.png'),
+		path.join(tmpDir, 'img/favicon.ico'),
+		path.join(tmpDir, 'file/brochure.pdf')
+	];
 
-	if(fs.lstatSync(path).isDirectory()) {
-		files = fs.readdirSync(path);
-
-		files.forEach(function(file, index) {
-			var curPath = path + "/" + file;
-
-			if(fs.lstatSync(curPath).isDirectory()) { 
-				removeTestDir(curPath);
-			} else {
-				fs.unlinkSync(curPath);
-			}
-		});
-
-		fs.rmdirSync(path);
-    }
-}
-
-/**
- * Add test files
- * @param {array} files Test files to create
- */
-function addTestFiles(files) {
-	if (!_.isArray(files)) {
-		files = [files];
-	}
+	testFiles = [];
 
 	// Loop and add files
 	files.forEach(function(file, index) {
 		var filePath 	= path.dirname(file).split('/');
+		var content		= 'test file: ' + index;
 		var curDir 		= '';
 
 		// Create parent directories for file if necessary
 		while (filePath.length > 0) {
-			curDir += filePath.shift();
+			curDir = path.join(curDir, filePath.shift());
 
 			try {
 				fs.lstatSync(curDir);
@@ -65,26 +52,41 @@ function addTestFiles(files) {
 			catch(e) {
 				fs.mkdirSync(curDir);
 			}
-			
-			curDir += '/';
 		}	
 
-		fs.writeFileSync(file, 'test file '+index);
+		fs.writeFileSync(file, content);
+		testFiles.push(new util.File({
+			path: file,
+			contents: new Buffer(content)
+		}))
 	});
 }
 
 /**
- * Remove test files
- * @param  {array} files The files to remove
+ * Remove all test files and clean up
+ * 
+ * @param {string} filePath The path to directory to remove.  If none provided tmpDir will be used
  */
-function removeTestFiles(files) {
-	if (!_.isArray(files)) {
-		files = [files];
-	}
+function cleanupTestFiles(filePath) {
+	var files = [];
 
-	files.forEach(function(file, index) {
-		fs.unlinkSync(file);
-	});
+	filePath = filePath || path.normalize(tmpDir);
+
+	if (fs.lstatSync(filePath).isDirectory()) {
+		files = fs.readdirSync(filePath);
+
+		files.forEach(function(file, index) {
+			var curPath = path.join(filePath, file);
+
+			if (fs.lstatSync(curPath).isDirectory()) { 
+				cleanupTestFiles(curPath);
+			} else {
+				fs.unlinkSync(curPath);
+			}
+		});
+
+		fs.rmdirSync(filePath);
+    }
 }
 
 
@@ -119,7 +121,7 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'replace', 'template'];
+		var defaults = ['hasher', 'length', 'manifest', 'replace', 'save', 'template'];
 		var config = hasher.get();
 
 		defaults.forEach(function(property) {
@@ -152,6 +154,14 @@ describe('Test config functionality', function() {
 
 describe('Test default config values', function() {
 
+	beforeEach(function() {
+		initTestFiles();
+	})
+
+	afterEach(function() {
+		cleanupTestFiles();
+	})
+
 	it('Should have a valid hasher', function() {
 		var hashers = hasher.getHashers();
 		var myHasher = hasher.get('hasher');
@@ -176,9 +186,20 @@ describe('Test default config values', function() {
 		expect(hasher.get('template')).to.not.be.empty;
 	})
 
-	it.skip('Should have a valid template format', function() {
-		hasher.set('{{name}}-{{hash}}.{{ext}}');
+	it('Should have a valid template format', function(done) {
+		hasher.set({template: '<%= name %>_<%= hash %>.<%= ext %>'});
 
+		var stream = hasher.hash();
+
+		stream.on('data', function(file) {
+			var hash = path.basename(file.path, path.extname(file.path)).replace(path.basename(file.oldPath, path.extname(file.oldPath)) + '_', '');
+			
+			expect(file.oldPath).to.equal(file.path.replace('_' + hash, ''));
+
+			done();
+		});
+
+		stream.write(testFiles[0]);
 	})
 
 })
@@ -187,23 +208,65 @@ describe('Test default config values', function() {
 describe('Test hashing functionality', function() {
 
 	beforeEach(function() {
-		addTestFiles(testFiles);
+		initTestFiles();
 	})
 
 	afterEach(function() {
-		removeTestDir(tmpDir);
+		cleanupTestFiles();
 	})
 
-	it.skip('Should hash a single file', function() {
+	it('Should hash a single file', function(done) {
+		var stream = hasher.hash();
 
+		stream.on('data', function(file) {
+			expect(file.assetHashed).to.be.true;
+			expect(file.path).to.not.equal(file.oldPath);
+
+			done();
+		});
+
+		stream.write(testFiles[0]);
 	})
 
-	it.skip('Should hash multiple files', function() {
+	it('Should hash multiple files', function(done) {
+		var count = 0;
+		var stream = hasher.hash();
 
+		stream.on('data', function(file) {
+			count++
+
+			expect(file.assetHashed).to.be.true;
+			expect(file.path).to.not.equal(file.oldPath);
+
+			if (count == testFiles.length)
+				done();
+		});
+
+		testFiles.forEach(function(file) {
+			stream.write(file);
+		});
 	})
 
-	it.skip('Should hash a file twice and remove the previous hashed file', function() {
+	it.skip('Should hash a file twice and remove the previous hashed file', function(done) {
+		var stream = hasher.hash();
 
+		stream.on('data', function(file) {
+
+		});
+	})
+
+	it('Should hash a file and remove the original', function(done) {
+		var stream = hasher.hash({
+			replace: true
+		});
+
+		stream.on('data', function(file) {
+			expect(fs.lstatSync.bind(fs.lstatSync, file.oldPath)).to.throw(Error, 'ENOENT, no such file or directory');
+
+			done();
+		})
+
+		stream.write(testFiles[0]);
 	})
 
 })
@@ -212,18 +275,24 @@ describe('Test hashing functionality', function() {
 describe('Test manifest file', function() {
 
 	beforeEach(function() {
-		addTestFiles(testFiles);
+		initTestFiles();
 	})
 
 	afterEach(function() {
-		removeTestDir(tmpDir);
+		cleanupTestFiles();
 	})
 
-	it.skip('Should create a manifest file', function() {
+	it.skip('Should create a manifest file', function(done) {
+		var stream = hasher.hash();
 
+		stream.on('data', function(file) {
+			done();
+		});
+
+		stream.write(testFiles[0]);
 	})
 
-	it.skip('Should have all hashed files in manifest file', function() {
+	it.skip('Should have all hashed files in manifest file', function(done) {
 
 	})
 

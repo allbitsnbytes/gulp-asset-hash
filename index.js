@@ -35,7 +35,10 @@ var util		= require('gulp-util');
  		// - name		Name of the file
  		// - hash		The hash string generated for the file
  		// - ext		The extension of the file
- 		template: '{{name}}-{{hash}}.{{ext}}'
+ 		template: '<%= name %>-<%= hash %>.<%= ext %>',
+
+ 		// Skip creation of hashed file when file hash is generated
+ 		save: false
  	});
 
 
@@ -104,11 +107,11 @@ var util		= require('gulp-util');
  				if (result.hashed) {
  					file.oldPath = result.oldFile;
  					file.path = result.newFile;
- 					file.assetHashed = true
+ 					file.assetHashed = true;
  				}
  			}
- 			catch(e) {
- 				cb(util.PluginError('gulp-asset-hash', e));
+ 			catch(error) {
+ 				cb(util.PluginError('gulp-asset-hash', error));
 
  				return;
  			}
@@ -130,7 +133,12 @@ var util		= require('gulp-util');
 
  		return through.obj(function(file, enc, cb) {
 
+ 			// If file was hashed write out manifest
+ 			if (file.assetHashed) {
+ 				hasher.saveManifest(options);
+ 			}
 
+ 			cb(null, file);
  		});
  	};
 
