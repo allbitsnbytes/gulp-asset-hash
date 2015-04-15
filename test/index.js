@@ -101,7 +101,7 @@ describe('Test if Gulp Asset Hash is defined', function() {
 
 describe('Test if methods exist', function() {
 
-	var methods = ['get', 'set', 'hash', 'saveManifest'];
+	var methods = ['get', 'getAssets', 'set', 'hash', 'saveManifest'];
 
 	methods.forEach(function(method) {
 		it('Should have method: ' + method, function() {
@@ -280,6 +280,10 @@ describe('Test manifest file', function() {
 
 	afterEach(function() {
 		cleanupTestFiles();
+	})
+
+	it('Should return an object for assets', function() {
+		expect(hasher.getAssets()).to.be.an('object');
 	})
 
 	it.skip('Should create a manifest file', function(done) {

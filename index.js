@@ -123,6 +123,16 @@ var util		= require('gulp-util');
 
 
  	/**
+ 	 * Get asset library for hashed files
+ 	 *
+ 	 * @return {object} The asset library
+ 	 */
+ 	var getAssets = function() {
+ 		return hasher.getAssets();
+ 	}
+
+
+ 	/**
  	 * Save manifest file
  	 *
  	 * @param {object} options The options to configure manifest file
@@ -147,6 +157,7 @@ var util		= require('gulp-util');
  		get: get,
  		set: set,
  		hash: hash,
+ 		getAssets: getAssets,
  		saveManifest: saveManifest,
  		getHashers: getHashers
  	};
