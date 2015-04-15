@@ -23,6 +23,7 @@ var testFiles	= [];
  * Create fresh copies of all test files and initialize the testFiles array with file objects
  */
 function initTestFiles() {
+	// Paths for test files to create
 	var files	= [
 		path.join(tmpDir, 'css/style.css'),
 		path.join(tmpDir, 'css/bootstrap.min.css'),
@@ -34,6 +35,8 @@ function initTestFiles() {
 		path.join(tmpDir, 'file/brochure.pdf')
 	];
 
+	// Reset asset library and clear testFiles array
+	hasher.resetAssets();
 	testFiles = [];
 
 	// Loop and add files
@@ -54,6 +57,7 @@ function initTestFiles() {
 			}
 		}	
 
+		// Write file to file system add to testFiles array
 		fs.writeFileSync(file, content);
 		testFiles.push(new util.File({
 			path: file,
@@ -61,6 +65,7 @@ function initTestFiles() {
 		}))
 	});
 }
+
 
 /**
  * Remove all test files and clean up
@@ -86,15 +91,19 @@ function cleanupTestFiles(filePath) {
 		});
 
 		fs.rmdirSync(filePath);
+    } else if(fs.lstatSync(filePath).isFile()) {
+    	fs.rmdirSync(filePath);
     }
 }
+
 
 /**
  * Hash provided file and return stream.
  * 
- * @param  {object}   file File object
- * @param  {functio}  done Function to call
- * @return {stream}   Stream for hashed file
+ * @param  {object}   	file File object to pass to stream
+ * @param {object} 		options Options to pass in to hasher
+ * @param  {function}  	done Function to call
+ * @return {stream} 
  */
 function hashFile(file, options, done) {
 	if (_.isFunction(options)) {
@@ -102,17 +111,62 @@ function hashFile(file, options, done) {
 		options = {};
 	}
 
+	// Get hash stream
 	var stream = hasher.hash(options);
 
 	stream.on('data', function(file) {
+
+		// Write hashed file to file system
 		fs.writeFileSync(file.path, file.content);
 
+		if (_.isFunction(done)) {
+			done(file);
+		}
+	});
+
+	stream.write(file);
+
+	return stream;
+}
+
+
+/**
+ * Save manifest
+ *
+ * @param {object} 		file File object to pass to stream
+ * @param {function} 	options Options to pass in to hasher
+ * @param {function}  	done Function to call
+ * @return {stream} 
+ */
+function saveManifest(file, options, done) {
+	if (_.isFunction(options)) {
+		done = options;
+		options = {};
+	}
+
+	// Get saveManifest stream
+	var stream = hasher.saveManifest(options);
+
+	stream.on('data', function(file) {
 		done(file);
 	});
 
 	stream.write(file);
 
 	return stream;
+}
+
+
+/**
+ * Run tests to check if manifest file is valid
+ */
+function testValidManifest() {
+	var assets = hasher.getAssets();
+	var manifest = path.join(hasher.get('path'), hasher.get('manifest'));
+	var manifestAssets = JSON.parse(fs.readFileSync(manifest));
+
+	expect(fs.lstatSync(manifest).isFile()).to.exist;
+	expect(_.size(manifestAssets)).to.equal(_.size(assets));
 }
 
 
@@ -297,24 +351,67 @@ describe('Test hashing functionality', function() {
 describe('Test manifest file', function() {
 
 	beforeEach(function() {
-console.dir(hasher.getAssets());		
 		initTestFiles();
+
+		// Set path where to save manifest
+		hasher.set({path: tmpDir});
 	})
 
 	afterEach(function() {
 		cleanupTestFiles();
 	})
 
-	it('Should return an object for assets', function() {
-		expect(hasher.getAssets()).to.be.an('object');
+	it('Should return an object for asset library', function(done) {
+		hashFile(testFiles[0], function(file) {
+			var assets = hasher.getAssets();
+
+			expect(assets).to.be.an('object');
+			expect(_.size(assets)).to.equal(1);
+
+			done();
+		});
 	})
 
-	it.skip('Should create a manifest file', function(done) {
-		done();
+	it('Should reset asset library', function(done) {
+		hashFile(testFiles[0], function(file) {
+			expect(_.size(hasher.getAssets())).to.equal(1);
+
+			// Reset asset library then check size
+			hasher.resetAssets();
+
+			expect(_.size(hasher.getAssets())).to.equal(0);
+
+			done();
+		});
 	})
 
-	it.skip('Should have all hashed files in manifest file', function(done) {
+	it('Should create a manifest file', function(done) {
+		hashFile(testFiles[1], function(file) {
+			saveManifest(file, function(file) {
+				testValidManifest();
 
+				done();
+			});
+		});
+	})
+
+	it('Should have all hashed files in manifest file', function(done) {
+		var count = 0;
+		var total = testFiles.length;
+
+		testFiles.forEach(function(testFile) {
+			hashFile(testFile, function(file) {
+				saveManifest(file, function(file) {
+					count++;
+
+					testValidManifest();
+
+					if (count === total) {
+						done();
+					}
+				});
+			});
+		});
 	})
 
 })

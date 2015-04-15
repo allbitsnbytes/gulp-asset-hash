@@ -129,7 +129,17 @@ var util		= require('gulp-util');
  	 */
  	var getAssets = function() {
  		return hasher.getAssets();
- 	}
+ 	};
+
+
+ 	/**
+ 	 * Reset asset library
+ 	 *
+ 	 * @return {object} Asset library
+ 	 */
+ 	var resetAssets = function() {
+ 		return hasher.resetAssets();
+ 	};
 
 
  	/**
@@ -158,6 +168,7 @@ var util		= require('gulp-util');
  		set: set,
  		hash: hash,
  		getAssets: getAssets,
+ 		resetAssets: resetAssets,
  		saveManifest: saveManifest,
  		getHashers: getHashers
  	};
