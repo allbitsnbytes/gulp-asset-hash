@@ -323,7 +323,7 @@ describe('Test hashing functionality', function() {
 		var originalFile = testFiles[1].clone();
 
 		hashFile(testFiles[1], function(file) {
-			expect(file.path).to.not.equal(file.oldFile);
+			expect(file.path).to.not.equal(file.original);
 
 			oldPath = file.path;
 			fs.writeFileSync(originalFile.path, 'new content so hash will change');

@@ -105,8 +105,8 @@ var util		= require('gulp-util');
  				var result = hasher.hashFiles(file.path, options);
 
  				if (result.hashed) {
- 					file.oldPath = result.oldFile;
- 					file.path = result.newFile;
+ 					file.oldPath = result.original;
+ 					file.path = result.path;
  					file.assetHashed = true;
  				}
  			}
