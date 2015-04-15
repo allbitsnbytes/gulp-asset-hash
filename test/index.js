@@ -89,6 +89,32 @@ function cleanupTestFiles(filePath) {
     }
 }
 
+/**
+ * Hash provided file and return stream.
+ * 
+ * @param  {object}   file File object
+ * @param  {functio}  done Function to call
+ * @return {stream}   Stream for hashed file
+ */
+function hashFile(file, options, done) {
+	if (_.isFunction(options)) {
+		done = options;
+		options = {};
+	}
+
+	var stream = hasher.hash(options);
+
+	stream.on('data', function(file) {
+		fs.writeFileSync(file.path, file.content);
+
+		done(file);
+	});
+
+	stream.write(file);
+
+	return stream;
+}
+
 
 describe('Test if Gulp Asset Hash is defined', function() {
 
@@ -189,17 +215,13 @@ describe('Test default config values', function() {
 	it('Should have a valid template format', function(done) {
 		hasher.set({template: '<%= name %>_<%= hash %>.<%= ext %>'});
 
-		var stream = hasher.hash();
-
-		stream.on('data', function(file) {
+		hashFile(testFiles[0], function(file) {
 			var hash = path.basename(file.path, path.extname(file.path)).replace(path.basename(file.oldPath, path.extname(file.oldPath)) + '_', '');
 			
 			expect(file.oldPath).to.equal(file.path.replace('_' + hash, ''));
 
 			done();
 		});
-
-		stream.write(testFiles[0]);
 	})
 
 })
@@ -216,57 +238,57 @@ describe('Test hashing functionality', function() {
 	})
 
 	it('Should hash a single file', function(done) {
-		var stream = hasher.hash();
-
-		stream.on('data', function(file) {
+		hashFile(testFiles[0], function(file) {
 			expect(file.assetHashed).to.be.true;
-			expect(file.path).to.not.equal(file.oldPath);
+			expect(fs.lstatSync(file.path).isFile()).to.be.true;
 
 			done();
 		});
-
-		stream.write(testFiles[0]);
 	})
 
 	it('Should hash multiple files', function(done) {
 		var count = 0;
-		var stream = hasher.hash();
+		var total = testFiles.length;
 
-		stream.on('data', function(file) {
-			count++
+		testFiles.forEach(function(testFile) {
+			hashFile(testFile, function(file) {
+				count++;
 
-			expect(file.assetHashed).to.be.true;
-			expect(file.path).to.not.equal(file.oldPath);
+				expect(file.assetHashed).to.be.true;
+				expect(fs.lstatSync(file.path).isFile()).to.be.true;
 
-			if (count == testFiles.length)
-				done();
-		});
-
-		testFiles.forEach(function(file) {
-			stream.write(file);
+				if (count === total) {
+					done();
+				}
+			});
 		});
 	})
 
-	it.skip('Should hash a file twice and remove the previous hashed file', function(done) {
-		var stream = hasher.hash();
+	it('Should hash a file twice and remove the previous hashed file', function(done) {
+		var oldPath = '';
+		var originalFile = testFiles[1].clone();
 
-		stream.on('data', function(file) {
+		hashFile(testFiles[1], function(file) {
+			expect(file.path).to.not.equal(file.oldFile);
 
+			oldPath = file.path;
+			fs.writeFileSync(originalFile.path, 'new content so hash will change');
+
+			hashFile(originalFile, function(file) {
+				expect(file.path).to.not.equal(oldPath);
+				expect(fs.lstatSync.bind(fs.lstatSync, oldPath)).to.throw(Error, 'ENOENT, no such file or directory');
+
+				done();
+			});
 		});
 	})
 
 	it('Should hash a file and remove the original', function(done) {
-		var stream = hasher.hash({
-			replace: true
-		});
-
-		stream.on('data', function(file) {
+		hashFile(testFiles[0], {replace: true}, function(file) {
 			expect(fs.lstatSync.bind(fs.lstatSync, file.oldPath)).to.throw(Error, 'ENOENT, no such file or directory');
 
 			done();
-		})
-
-		stream.write(testFiles[0]);
+		});
 	})
 
 })
@@ -275,6 +297,7 @@ describe('Test hashing functionality', function() {
 describe('Test manifest file', function() {
 
 	beforeEach(function() {
+console.dir(hasher.getAssets());		
 		initTestFiles();
 	})
 
@@ -287,13 +310,7 @@ describe('Test manifest file', function() {
 	})
 
 	it.skip('Should create a manifest file', function(done) {
-		var stream = hasher.hash();
-
-		stream.on('data', function(file) {
-			done();
-		});
-
-		stream.write(testFiles[0]);
+		done();
 	})
 
 	it.skip('Should have all hashed files in manifest file', function(done) {
