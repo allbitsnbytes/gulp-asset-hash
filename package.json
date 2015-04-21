@@ -36,7 +36,6 @@
     "revving"
   ],
   "dependencies": {
-    "gutil": "~1.6.4",
     "glob": "~5.0.5",
     "lodash": "~3.6.0",
     "chai": "~2.2.0",
