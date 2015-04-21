@@ -1,5 +1,5 @@
 {
-  "name": "gulp_asset_hash",
+  "name": "gulp-asset-hash",
   "version": "0.1.10",
   "description": "Gulp plugin to hash asset filenames and generate asset manifest",
   "author": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/allbitsnbytes/gulp_asset_hash"
+    "url": "https://github.com/allbitsnbytes/gulp-asset-hash"
   },
   "bugs": {
-    "url": "https://github.com/allbitsnbytes/gulp_asset_hash/issues"
+    "url": "https://github.com/allbitsnbytes/gulp-asset-hash/issues"
   },
   "license": [{
     "type": "MIT",
-    "url": "https://github.com/allbitsnbytes/gulp_asset_hash/blob/LICENSE-MIT"
+    "url": "https://github.com/allbitsnbytes/gulp-asset-hash/blob/LICENSE-MIT"
   }],
   "engines": {
     "node": ">= 0.10.25"
