@@ -4,7 +4,7 @@
 
 var _			= require('lodash');
 var file		= require('vinyl-file');
-var hasher		= require('../asset_hash/');
+var hasher		= require('asset_hash');
 var through		= require('through2');
 var util		= require('gulp-util');
 
@@ -80,7 +80,7 @@ var util		= require('gulp-util');
  	 * @return {object} Returns stream (through object)
  	 */
  	var hash = function(options) {
- 		options = _.isObject(options) ? options : {};
+ 		options = options || {};
 
  		return through.obj(function(file, enc, cb) {
 
