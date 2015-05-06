@@ -17,11 +17,11 @@
   "license": [
     {
       "type": "MIT",
-      "url": "https://github.com/allbitsnbytes/gulp-asset-hash/blob/LICENSE-MIT"
+      "url": "https://github.com/allbitsnbytes/gulp-asset-hash/blob/LICENSE.md"
     }
   ],
   "engines": {
-    "node": ">= 0.10.25"
+    "node": ">= 0.10.x"
   },
   "main": "index.js",
   "directories": {
@@ -47,7 +47,7 @@
     "glob": "~5.0.5",
     "gulp-util": "~3.0.4",
     "lodash": "~3.6.0",
-    "through2": "~0.6.5",
-    "vinyl-file": "~1.1.1"
+    "mocha-jshint": "^2.2.3",
+    "through2": "~0.6.5"
   }
 }
