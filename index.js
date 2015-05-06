@@ -3,10 +3,9 @@
  */
 
 var _			= require('lodash');
-var file		= require('vinyl-file');
-var hasher		= require('asset_hash');
-var through		= require('through2');
-var util		= require('gulp-util');
+var Hasher		= require('asset_hash');
+var Through		= require('through2');
+var Util		= require('gulp-util');
 
 
  /**
@@ -15,7 +14,7 @@ var util		= require('gulp-util');
  var GulpAssetHasher = function() {
 
  	// Set default configuration
- 	hasher.set({
+ 	Hasher.set({
 
  		// The default algorithm to use to generate hash
  		// Options are those available from node's crypto library, getHashes() method
@@ -48,7 +47,7 @@ var util		= require('gulp-util');
  	 * @param {object} options Config options to add or update
  	 */
  	var set = function(options) {
- 		hasher.set(options);
+ 		Hasher.set(options);
  	};
 
 
@@ -59,7 +58,7 @@ var util		= require('gulp-util');
  	 * @return {*} Config value for specified key or whole config object
  	 */
  	var get = function(key) {
- 		return typeof key === 'undefined' ? hasher.get() : hasher.get(key);
+ 		return typeof key === 'undefined' ? Hasher.get() : Hasher.get(key);
  	};
 
 
@@ -69,8 +68,8 @@ var util		= require('gulp-util');
  	 * @return {array} Array of hashes
  	 */
  	var getHashers = function() {
- 		return hasher.getHashers();
- 	}
+ 		return Hasher.getHashers();
+ 	};
 
 
  	/**
@@ -82,7 +81,7 @@ var util		= require('gulp-util');
  	var hash = function(options) {
  		options = options || {};
 
- 		return through.obj(function(file, enc, cb) {
+ 		return Through.obj(function(file, enc, cb) {
 
  			// If file is null continue
  			if (file.isNull()) {
@@ -93,7 +92,7 @@ var util		= require('gulp-util');
 
  			// If stream throw an error
  			if (file.isStream()) {
- 				cb(new util.PluginError('gulp-asset-hash', 'Sorry, streaming is not supported.'));
+ 				cb(new Util.PluginError('gulp-asset-hash', 'Sorry, streaming is not supported.'));
 
  				return;
  			}
@@ -102,7 +101,7 @@ var util		= require('gulp-util');
 
  			// Hash file
  			try {
- 				var result = hasher.hashFiles(file.path, options);
+ 				var result = Hasher.hashFiles(file.path, options);
 
  				if (result.hashed) {
  					file.oldPath = result.original;
@@ -111,7 +110,7 @@ var util		= require('gulp-util');
  				}
  			}
  			catch(error) {
- 				cb(util.PluginError('gulp-asset-hash', error));
+ 				cb(Util.PluginError('gulp-asset-hash', error));
 
  				return;
  			}
@@ -128,7 +127,7 @@ var util		= require('gulp-util');
  	 * @return {object} The asset library
  	 */
  	var getAssets = function() {
- 		return hasher.getAssets();
+ 		return Hasher.getAssets();
  	};
 
 
@@ -138,7 +137,7 @@ var util		= require('gulp-util');
  	 * @return {object} Asset library
  	 */
  	var resetAssets = function() {
- 		return hasher.resetAssets();
+ 		return Hasher.resetAssets();
  	};
 
 
@@ -151,11 +150,11 @@ var util		= require('gulp-util');
  	var saveManifest = function(options) {
  		options = _.isObject(options) ? options : {};
 
- 		return through.obj(function(file, enc, cb) {
+ 		return Through.obj(function(file, enc, cb) {
 
  			// If file was hashed write out manifest
  			if (file.assetHashed) {
- 				hasher.saveManifest(options);
+ 				Hasher.saveManifest(options);
  			}
 
  			cb(null, file);
