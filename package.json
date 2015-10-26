@@ -38,16 +38,16 @@
     "revving"
   ],
   "devDependencies": {
-    "chai": "^2.2.0",
-    "mocha": "^2.2.4",
-    "mocha-jshint": "^2.1.1"
+    "chai": "^2.3.0",
+    "mocha": "^2.3.3",
+    "mocha-jshint": "^2.2.5"
   },
   "dependencies": {
-    "asset_hash": "^0.1.52",
-    "glob": "~5.0.5",
-    "gulp-util": "~3.0.4",
-    "lodash": "~3.6.0",
+    "asset_hash": "^0.1.53",
+    "glob": "~5.0.15",
+    "gulp-util": "~3.0.7",
+    "lodash": "~3.10.1",
     "mocha-jshint": "^2.2.3",
-    "through2": "~0.6.5"
+    "through2": "2.0.0"
   }
 }
