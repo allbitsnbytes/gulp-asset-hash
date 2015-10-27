@@ -51,11 +51,11 @@ function initTestFiles() {
 
 			try {
 				fs.lstatSync(curDir);
-			} 
+			}
 			catch(e) {
 				fs.mkdirSync(curDir);
 			}
-		}	
+		}
 
 		// Write file to file system add to testFiles array
 		fs.writeFileSync(file, content);
@@ -69,7 +69,7 @@ function initTestFiles() {
 
 /**
  * Remove all test files and clean up
- * 
+ *
  * @param {string} filePath The path to directory to remove.  If none provided tmpDir will be used
  */
 function cleanupTestFiles(filePath) {
@@ -83,7 +83,7 @@ function cleanupTestFiles(filePath) {
 		files.forEach(function(file, index) {
 			var curPath = path.join(filePath, file);
 
-			if (fs.lstatSync(curPath).isDirectory()) { 
+			if (fs.lstatSync(curPath).isDirectory()) {
 				cleanupTestFiles(curPath);
 			} else {
 				fs.unlinkSync(curPath);
@@ -99,11 +99,11 @@ function cleanupTestFiles(filePath) {
 
 /**
  * Hash provided file and return stream.
- * 
- * @param  {object}   	file File object to pass to stream
- * @param {object} 		options Options to pass in to hasher
- * @param  {function}  	done Function to call
- * @return {stream} 
+ *
+ * @param {object} file File object to pass to stream
+ * @param {object} options Options to pass in to hasher
+ * @param {function} done Function to call
+ * @return {stream}
  */
 function hashFile(file, options, done) {
 	if (_.isFunction(options)) {
@@ -136,7 +136,7 @@ function hashFile(file, options, done) {
  * @param {object} 		file File object to pass to stream
  * @param {function} 	options Options to pass in to hasher
  * @param {function}  	done Function to call
- * @return {stream} 
+ * @return {stream}
  */
 function saveManifest(file, options, done) {
 	if (_.isFunction(options)) {
@@ -251,7 +251,7 @@ describe('Test default config values', function() {
 	})
 
 	it('Should have a valid length', function() {
-		expect(hasher.get('length')).to.be.a('number').and.be.at.least(10);
+		expect(hasher.get('length')).to.be.a('number').and.be.at.least(8);
 	})
 
 	it('Should have a manifest file', function() {
@@ -270,9 +270,9 @@ describe('Test default config values', function() {
 		hasher.set({template: '<%= name %>_<%= hash %>.<%= ext %>'});
 
 		hashFile(testFiles[0], function(file) {
-			var hash = path.basename(file.path, path.extname(file.path)).replace(path.basename(file.oldPath, path.extname(file.oldPath)) + '_', '');
-			
-			expect(file.oldPath).to.equal(file.path.replace('_' + hash, ''));
+			var hash = path.basename(file.path, path.extname(file.path)).replace(path.basename(file.originalPath, path.extname(file.originalPath)) + '_', '');
+
+			expect(file.originalPath).to.equal(file.path.replace('_' + hash, ''));
 
 			done();
 		});
@@ -293,7 +293,7 @@ describe('Test hashing functionality', function() {
 
 	it('Should hash a single file', function(done) {
 		hashFile(testFiles[0], function(file) {
-			expect(file.assetHashed).to.be.true;
+			expect(file.hashed).to.be.true;
 			expect(fs.lstatSync(file.path).isFile()).to.be.true;
 
 			done();
@@ -308,7 +308,7 @@ describe('Test hashing functionality', function() {
 			hashFile(testFile, function(file) {
 				count++;
 
-				expect(file.assetHashed).to.be.true;
+				expect(file.hashed).to.be.true;
 				expect(fs.lstatSync(file.path).isFile()).to.be.true;
 
 				if (count === total) {
@@ -319,18 +319,18 @@ describe('Test hashing functionality', function() {
 	})
 
 	it('Should hash a file twice and remove the previous hashed file', function(done) {
-		var oldPath = '';
+		var originalPath = '';
 		var originalFile = testFiles[1].clone();
 
 		hashFile(testFiles[1], function(file) {
 			expect(file.path).to.not.equal(file.original);
 
-			oldPath = file.path;
+			originalPath = file.path;
 			fs.writeFileSync(originalFile.path, 'new content so hash will change');
 
 			hashFile(originalFile, function(file) {
-				expect(file.path).to.not.equal(oldPath);
-				expect(fs.lstatSync.bind(fs.lstatSync, oldPath)).to.throw(Error, 'ENOENT, no such file or directory');
+				expect(file.path).to.not.equal(originalPath);
+				expect(fs.lstatSync.bind(fs.lstatSync, originalPath)).to.throw(Error, 'ENOENT, no such file or directory');
 
 				done();
 			});
@@ -339,7 +339,7 @@ describe('Test hashing functionality', function() {
 
 	it('Should hash a file and remove the original', function(done) {
 		hashFile(testFiles[0], {replace: true}, function(file) {
-			expect(fs.lstatSync.bind(fs.lstatSync, file.oldPath)).to.throw(Error, 'ENOENT, no such file or directory');
+			expect(fs.lstatSync.bind(fs.lstatSync, file.originalPath)).to.throw(Error, 'ENOENT, no such file or directory');
 
 			done();
 		});
