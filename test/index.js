@@ -133,9 +133,9 @@ function hashFile(file, options, done) {
 /**
  * Save manifest
  *
- * @param {object} 		file File object to pass to stream
- * @param {function} 	options Options to pass in to hasher
- * @param {function}  	done Function to call
+ * @param {object} file File object to pass to stream
+ * @param {function} options Options to pass in to hasher
+ * @param {function} done Function to call
  * @return {stream}
  */
 function saveManifest(file, options, done) {
@@ -181,7 +181,7 @@ describe('Test if Gulp Asset Hash is defined', function() {
 
 describe('Test if methods exist', function() {
 
-	var methods = ['get', 'getAssets', 'set', 'hash', 'saveManifest'];
+	var methods = ['get', 'getAssets', 'set', 'hash', 'saveManifest', 'getAssets', 'resetAssets', 'getHashers'];
 
 	methods.forEach(function(method) {
 		it('Should have method: ' + method, function() {
@@ -201,7 +201,7 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'replace', 'save', 'template'];
+		var defaults = ['base', 'hasher', 'hashKey', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
 		var config = hasher.get();
 
 		defaults.forEach(function(property) {
@@ -242,6 +242,14 @@ describe('Test default config values', function() {
 		cleanupTestFiles();
 	})
 
+	it('Should have a base equal to process.cwd()', function() {
+		expect(hasher.get('base')).to.equal(process.cwd());
+	})
+
+	it('Should have a path equal to process.cwd()', function() {
+		expect(hasher.get('path')).to.equal(process.cwd());
+	})
+
 	it('Should have a valid hasher', function() {
 		var hashers = hasher.getHashers();
 		var myHasher = hasher.get('hasher');
@@ -273,7 +281,6 @@ describe('Test default config values', function() {
 			var hash = path.basename(file.path, path.extname(file.path)).replace(path.basename(file.originalPath, path.extname(file.originalPath)) + '_', '');
 
 			expect(file.originalPath).to.equal(file.path.replace('_' + hash, ''));
-
 			done();
 		});
 	})
