@@ -42,13 +42,13 @@
   "devDependencies": {
     "chai": "^2.3.0",
     "glob": "~5.0.15",
+    "lodash": "^3.10.1",
     "mocha": "^2.3.3",
     "mocha-jshint": "^2.2.5"
   },
   "dependencies": {
     "asset_hash": "0.2.0",
     "gulp-util": "~3.0.7",
-    "lodash": "^3.10.1",
     "through2": "^2.0.0"
   }
 }
