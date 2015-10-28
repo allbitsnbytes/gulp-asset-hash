@@ -22,7 +22,7 @@ var Assets = require('gulp-asset-hash');
 
 Gulp.task('images', function() {
 	return Gulp.src('src/images/**/*')
-		.pipe(Gulp.dest('assets/images');
+		.pipe(Gulp.dest('assets/images')
 		.pipe(Assets.hash())
 		.pipe(Gulp.dest('assets/images');
 });
@@ -36,7 +36,7 @@ var Assets = require('gulp-asset-hash');
 
 Gulp.task('images', function() {
 	return Gulp.src('src/images/**/*')
-		.pipe(Gulp.dest('assets/images');
+		.pipe(Gulp.dest('assets/images')
 		.pipe(Assets.hash({
 			manifest: 'asset-manifest.json',
 			hashKey: 'g8Yz',
@@ -51,7 +51,7 @@ Gulp.task('images', function() {
 
 ### .hash(options)
 
-Hash filenames for files passed in based on the file's contents.
+Hash filenames and generate asset manifest file.  Hash is based on file content so it only changes when the actual file changes.  To disable generation of manifest file, set manifest option to false.
 
 
 ### .get(key)
@@ -104,7 +104,7 @@ Default: ` aH4uwG `
 
 ### manifest
 
-The name ot use for the manifest file.  If this value is empty or false the manifest file won't be created.
+The name ot use for the manifest file.  If this value is false the manifest file won't be saved.
 
 Type: string
 Default: ` assets.json `
@@ -115,7 +115,7 @@ Default: ` assets.json `
 The path where to save the manifest file.
 
 Type: string
-Default: ` . `
+Default: ` process.cwd() `
 
 
 ### replace
@@ -142,11 +142,11 @@ Default: ` <%= name %>-<%= hash %>.<%= ext %> `
 To disable manifest file generation, pass the option manifest set as false.
 
 ```
-...
-.pipe(Assets.hash({
+var Assets = require('gulp-asset-hash');
+
+Assets.set({
 	manifest: false
-}))
-...
+});
 ```
 
 
