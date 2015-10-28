@@ -2,7 +2,6 @@
  * Gulp plugin to hash assets and generate asset manifest
  */
 
-var _			= require('lodash');
 var assets		= require('asset_hash');
 var through		= require('through2');
 var util		= require('gulp-util');
@@ -18,12 +17,12 @@ var GulpAssetHasher = function() {
 
 	// Set default configuration
 	assets.set({
-		base: '.',
+		base: process.cwd(),
 		hasher: 'sha1',
 		hashKey: 'aH4uwG',
 		length: 8,
 		manifest: 'assets.json',
-		path: '.',
+		path: process.cwd(),
 		replace: false,
 		save: false,
 		template: '<%= name %>-<%= hash %>.<%= ext %>'
@@ -94,6 +93,12 @@ var GulpAssetHasher = function() {
 
 				// Pass updated file and continue
 				cb(null, file);
+			}, function(done) {
+				if (assets.get('manifest') !== false) {
+					assets.saveManifest(options);
+				}
+
+				done();
 			});
 		},
 
@@ -105,14 +110,10 @@ var GulpAssetHasher = function() {
 		 * @return {object} Returns stream (through object)
 		 */
 		saveManifest : function(options) {
-			options = _.isObject(options) ? options : {};
+			options = options || {};
 
 			return through.obj(function(file, enc, cb) {
-
-				// If file was hashed write out manifest
-				if (file.hashed) {
-					assets.saveManifest(options);
-				}
+				assets.saveManifest(options);
 
 				cb(null, file);
 			});
