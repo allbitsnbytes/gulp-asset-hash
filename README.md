@@ -199,3 +199,4 @@ Assets.set({
 
 #### Misc
 - Updated dependency versions.
+- Added new tests and fixed some bugs
