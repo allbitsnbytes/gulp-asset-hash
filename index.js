@@ -22,7 +22,7 @@ var GulpAssetHasher = function() {
 		hashKey: 'aH4uwG',
 		length: 8,
 		manifest: 'assets.json',
-		path: process.cwd(),
+		path: '',
 		replace: false,
 		save: false,
 		template: '<%= name %>-<%= hash %>.<%= ext %>'

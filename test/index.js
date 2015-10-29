@@ -246,8 +246,8 @@ describe('Test default config values', function() {
 		expect(hasher.get('base')).to.equal(process.cwd());
 	})
 
-	it('Should have a path equal to process.cwd()', function() {
-		expect(hasher.get('path')).to.equal(process.cwd());
+	it('Should have a path equal to empty string', function() {
+		expect(hasher.get('path')).to.equal('');
 	})
 
 	it('Should have a valid hasher', function() {

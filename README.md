@@ -112,10 +112,10 @@ Default: ` assets.json `
 
 ### path
 
-The path where to save the manifest file.
+The path where to save the manifest file.  This path should be relative to you base path which is where your gulpfile is.
 
 Type: string
-Default: ` process.cwd() `
+Default: ` '' `
 
 
 ### replace
@@ -163,9 +163,37 @@ By default the manifest file will be saved in the directory where the gulpfile.j
 ```
 
 
+#### Do I have to use the path option to specify where to save my manifest file?
+
+No. You can also pass the path along with the manifest file name using the manifest option.
+
+```
+...
+.pipe(Assets.hash({
+	manifest: 'assets/images/images.json'
+});
+...
+```
+
+
+#### I want to change an option globally so all my calls to hash will use the same option.  How can I do this?
+
+You can change configuration options globally using the set method.  Once you set the option globally all calls to hash will use those options.
+
+```
+var Assets = require('gulp-asset-hash');
+
+Assets.set({
+	manifest: 'assets/manifest.json',
+	length: 12,
+	hasher: 'md5'
+});
+```
+
+
 ## Change Log
 
-### [0.2.0] - 2015-10-27
+### [0.2.0] - 2015-10-29
 #### Feature
 - Added hashKey config option.  This makes it easier to manage old hashed files.
 
