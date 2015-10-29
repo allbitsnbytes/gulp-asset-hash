@@ -1,6 +1,6 @@
 {
   "name": "gulp-asset-hash",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "Gulp plugin to hash asset filenames and generate asset manifest",
   "author": {
     "name": "Maxwell Berkel",
