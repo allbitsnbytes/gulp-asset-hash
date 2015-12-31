@@ -1,6 +1,6 @@
 {
   "name": "gulp-asset-hash",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Gulp plugin to hash asset filenames and generate asset manifest",
   "author": {
     "name": "Maxwell Berkel",
@@ -41,14 +41,14 @@
   ],
   "devDependencies": {
     "chai": "^2.3.0",
-    "glob": "~5.0.15",
+    "glob": "^5.0.15",
     "lodash": "^3.10.1",
-    "mocha": "^2.3.3",
+    "mocha": "^2.3.4",
     "mocha-jshint": "^2.2.5"
   },
   "dependencies": {
-    "asset_hash": "0.2.1",
-    "gulp-util": "~3.0.7",
+    "asset_hash": "^0.2.1",
+    "gulp-util": "^3.0.7",
     "through2": "^2.0.0"
   }
 }
